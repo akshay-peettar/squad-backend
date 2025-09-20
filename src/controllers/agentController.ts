@@ -6,10 +6,10 @@ import AiModel from '../models/aiModel'; // We need this to validate the model e
 // @route   POST /api/agents
 export const createUserAgent = async (req: Request, res: Response) => {
     // We expect the ID of the base model, a custom name, and the API key
-    const { aiModelId, customName, apiKey } = req.body;
+    const { aiModelId, customName, apiKey = '' } = req.body;
 
-    if (!aiModelId || !customName || !apiKey) {
-        return res.status(400).json({ message: 'Please provide aiModelId, customName, and apiKey' });
+    if (!aiModelId || !customName) {
+        return res.status(400).json({ message: 'Please provide aiModelId, customName' });
     }
 
     try {
@@ -40,6 +40,16 @@ export const getUserAgents = async (req: Request, res: Response) => {
         // Populate the 'aiModel' field to get details from the AiModel collection
         const agents = await UserAgent.find({ owner: req.user._id }, { apiKey: 0 }).populate('aiModel');
         res.json(agents);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// Add a function to get all available base models
+export const getBaseAiModels = async (req: Request, res: Response) => {
+    try {
+        const models = await AiModel.find({ isAvailable: true });
+        res.json(models);
     } catch (error) {
         res.status(500).json({ message: 'Server Error' });
     }

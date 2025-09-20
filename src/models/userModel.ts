@@ -1,10 +1,10 @@
-// server/src/models/userModel.ts
 import mongoose, { Document, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 // --- NEW: Define the properties of a User document ---
 interface IUser extends Document {
   username: string;
+  email: string; // Added email field
   password: string;
   matchPassword(enteredPassword: string): Promise<boolean>; // Tell TS about our custom method
 }
@@ -17,6 +17,12 @@ const userSchema = new mongoose.Schema<IUser, IUserModel>({
     required: true,
     unique: true,
   },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    match: [/.+\@.+\..+/, 'Please fill a valid email address']
+  },
   password: {
     type: String,
     required: true,
@@ -27,6 +33,7 @@ const userSchema = new mongoose.Schema<IUser, IUserModel>({
 
 // Add the method to the schema to compare passwords
 userSchema.methods.matchPassword = async function (enteredPassword: string) {
+  console.log("Comparing passwords:", enteredPassword, this.password);
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

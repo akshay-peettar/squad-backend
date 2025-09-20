@@ -10,6 +10,7 @@ import authRoutes from './routes/authRoutes';
 import agentRoutes from './routes/agentRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import messageRoutes from './routes/messageRoutes';
+import chatRoutes from './routes/chatRoutes';
 import JWTService from './services/jwtService';
 import { socketHandler } from './socket/socketHandler';
 
@@ -67,7 +68,9 @@ socketHandler(io)
 
 app.use('/api/auth', authRoutes);
 app.use('/api/agents', agentRoutes);
-app.use('/api/chat', messageRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/chats', chatRoutes); // Use the new chat routes
+
 app.use('/api/analytics', analyticsRoutes);
 
 

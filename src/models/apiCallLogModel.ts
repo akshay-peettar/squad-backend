@@ -7,6 +7,8 @@ export interface IApiCallLog extends Document {
   prompt: string;
   // We can add the full context later when we build the "Shared Brain"
   // context: any; 
+  chat: Types.ObjectId;
+  callType: 'user' | 'system'; 
   response: string;
   promptTokens: number;
   completionTokens: number;
@@ -20,6 +22,8 @@ const apiCallLogSchema = new Schema<IApiCallLog>({
   userAgent: { type: Schema.Types.ObjectId, ref: 'UserAgent', required: true },
   provider: { type: String, required: true },
   prompt: { type: String, required: true },
+  chat: { type: Schema.Types.ObjectId, ref: 'Chat', required: true },
+  callType: { type: String, required: true, enum: ['user', 'system'], default: 'user' },
   response: { type: String, required: true },
   promptTokens: { type: Number, required: true },
   completionTokens: { type: Number, required: true },

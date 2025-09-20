@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
-import connectDB from './config/db';
+import {connectMongo} from './config/db';
 import AiModel from './models/aiModel';
 import { aiModels } from './data/aiModels';
 
 dotenv.config();
-connectDB();
+connectMongo();
 
 const importData = async () => {
   try {

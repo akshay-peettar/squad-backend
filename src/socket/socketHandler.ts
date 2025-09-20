@@ -1,6 +1,5 @@
 import { Server, Socket } from 'socket.io';
 import JWTService from '../services/jwtService';
-import Message from '../models/messageModel';
 
 export const socketHandler = (io: Server) => {
   // Authentication middleware
@@ -18,19 +17,19 @@ export const socketHandler = (io: Server) => {
     }
   });
 
-  io.on('connection', async (socket: Socket) => {
+  io.on('connection', (socket: Socket) => {
     console.log('✅ Authenticated user connected:', socket.id);
 
-    // Load message history on connection
-    try {
-      const messages = await Message.find().sort({ createdAt: 'asc' }).limit(50);
-      socket.emit('load_messages', messages);
-    } catch (error) {
-      console.error("Error loading messages:", error);
-    }
+    socket.on('join_chat', (chatId) => {
+      socket.join(chatId);
+      console.log(`User ${socket.id} joined chat ${chatId}`);
+    });
 
-    // The 'send_message' listener is now GONE from here.
-
+    socket.on('leave_chat', (chatId) => {
+        socket.leave(chatId);
+        console.log(`User ${socket.id} left chat ${chatId}`);
+    });
+    
     socket.on('disconnect', () => {
       console.log('🔥 Authenticated user disconnected:', socket.id);
     });

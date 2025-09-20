@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import CryptoService from './cryptoService';
-import ApiCallLog from '../models/apiCallLogModel'; // 👈 Import the logging model
+import CryptoService from '../cryptoService';
+import ApiCallLog from '../../models/apiCallLogModel'; // 👈 Import the logging model
 
 class GeminiService {
   /**
@@ -9,11 +9,14 @@ class GeminiService {
    * @param userAgent - The user's agent object from the database.
    * @returns The generated text response from the Gemini API.
    */
-  public static async generateResponse(prompt: string, userAgent: any): Promise<string> {
+  public static async generateResponse(prompt: string, userAgent: any, chatId: string): Promise<string> {
     const startTime = Date.now();
     try {
-      const apiKey = CryptoService.decrypt(userAgent.apiKey);
-      // console.log("Decrypted API Key:", apiKey); // Debugging line to check the decrypted key
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("Gemini API key is not configured on the server.");
+      }
+      // const apiKey = CryptoService.decrypt(userAgent.apiKey); // currently using global key
       const userGenAI = new GoogleGenerativeAI(apiKey);
       const model = userGenAI.getGenerativeModel({ model: userAgent.aiModel.modelName });
 
@@ -37,6 +40,8 @@ class GeminiService {
         userAgent: userAgent._id,
         provider: 'Google',
         prompt,
+        callType: 'user',
+        chat: chatId,
         response: responseText,
         promptTokens: promptTokenCount.totalTokens,
         completionTokens: completionTokenCount.totalTokens,

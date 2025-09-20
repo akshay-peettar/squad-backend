@@ -12,16 +12,16 @@ const userAgentSchema = new Schema<IUserAgent>({
   owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   aiModel: { type: Schema.Types.ObjectId, ref: 'AiModel', required: true },
   customName: { type: String, required: true },
-  apiKey: { type: String, required: true },
+  apiKey: { type: String, required: false },
 }, { timestamps: true });
 
 // Encrypt the API key before saving
-userAgentSchema.pre('save', function(next) {
-  if (this.isModified('apiKey')) {
-    this.apiKey = CryptoService.encrypt(this.apiKey);
-  }
-  next();
-});
+// userAgentSchema.pre('save', function(next) {
+//   if (this.isModified('apiKey')) {
+//     this.apiKey = CryptoService.encrypt(this.apiKey);
+//   }
+//   next();
+// });
 
 const UserAgent = mongoose.model<IUserAgent>('UserAgent', userAgentSchema);
 export default UserAgent;

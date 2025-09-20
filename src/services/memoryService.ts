@@ -63,16 +63,18 @@ class MemoryService {
   public static async createMemory(
     content: string,
     userId: string,
-    userAgentId: string
+    userAgentId: string,
+    chatId: string // Add chatId
   ): Promise<void> {
     try {
-      const store = await getVectorStore(); // This is now dynamic
+      const store = await getVectorStore();
       const document = new Document({
         pageContent: content,
-        metadata: { user_id: userId, user_agent_id: userAgentId },
+        // Add chatId to the metadata
+        metadata: { user_id: userId, user_agent_id: userAgentId, chat_id: chatId },
       });
       await store.addDocuments([document]);
-      console.log(`🧠 Memory created successfully in ${store.tableName}.`);
+      console.log(`🧠 Memory created successfully in ${store.tableName} for chat ${chatId}.`);
     } catch (error) {
       console.error("❌ Error creating memory:", error);
     }
@@ -81,20 +83,23 @@ class MemoryService {
   public static async fetchRelevantMemories(
     query: string,
     userId: string,
-    userAgentId: string
+    userAgentId: string,
+    chatId: string // Add chatId
   ): Promise<string> {
     try {
-      const store = await getVectorStore(); // This is also dynamic
+      const store = await getVectorStore();
+      // Use the metadata filter to fetch memories only for the specific chat
       const results = await store.similaritySearch(query, 4, {
         user_id: userId,
         user_agent_id: userAgentId,
+        chat_id: chatId,
       });
 
       if (results.length === 0) {
-        return "No relevant memories found.";
+        return "No relevant memories found for this chat.";
       }
 
-      console.log(`🧠 Fetched memories from ${store.tableName}.`);
+      console.log(`🧠 Fetched memories from ${store.tableName} for chat ${chatId}.`);
       return results.map((doc) => doc.pageContent).join("\n---\n");
     } catch (error) {
       console.error("❌ Error fetching memories:", error);

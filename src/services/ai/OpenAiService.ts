@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
-import CryptoService from './cryptoService';
-import ApiCallLog from '../models/apiCallLogModel';
+import CryptoService from '../cryptoService';
+import ApiCallLog from '../../models/apiCallLogModel';
 
 class OpenAiService {
   /**
@@ -9,10 +9,14 @@ class OpenAiService {
    * @param userAgent - The user's agent object from the database.
    * @returns The generated text response from the OpenAI API.
    */
-  public static async generateResponse(prompt: string, userAgent: any): Promise<string> {
+  public static async generateResponse(prompt: string, userAgent: any, chatId: string): Promise<string> {
     const startTime = Date.now();
     try {
-      const apiKey = CryptoService.decrypt(userAgent.apiKey);
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        throw new Error("OpenAI API key is not configured on the server.");
+      }
+      // const apiKey = CryptoService.decrypt(userAgent.apiKey); // currently using global key
       const openai = new OpenAI({ apiKey });
 
       const completion = await openai.chat.completions.create({
@@ -29,7 +33,9 @@ class OpenAiService {
         owner: userAgent.owner,
         userAgent: userAgent._id,
         provider: 'OpenAI',
+        callType: 'user',
         prompt,
+        chat: chatId,
         response: responseText,
         promptTokens: usage?.prompt_tokens || 0,
         completionTokens: usage?.completion_tokens || 0,

@@ -1,7 +1,7 @@
-// server/src/models/messageModel.ts
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IMessage extends Document {
+  chat: Types.ObjectId; // Reference to the Chat model
   text: string;
   senderType: 'User' | 'AI';
   // Conditionally required fields based on senderType
@@ -10,6 +10,11 @@ export interface IMessage extends Document {
 }
 
 const messageSchema: Schema = new Schema<IMessage>({
+  chat: {
+    type: Schema.Types.ObjectId,
+    ref: 'Chat',
+    required: true,
+  },
   text: { 
     type: String, 
     required: true 
@@ -22,8 +27,7 @@ const messageSchema: Schema = new Schema<IMessage>({
   userSender: { 
     type: Schema.Types.ObjectId, 
     ref: 'User',
-    // required:true
-    // // This field is only required if the sender is a 'User'
+    // This field is only required if the sender is a 'User'
     required: function(this: IMessage) {
       return this.senderType === 'User';
     } 
